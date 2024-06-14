@@ -1,0 +1,88 @@
+    - name: Installing dependencies
+      ansible.builtin.apt:
+        name: "{{ item }}"
+        state: present
+      loop:
+        - sshpass
+        - rsync
+
+    - name: Create user {{ zookeeper_user }} with sudo access
+      ansible.builtin.user:
+        name: "{{ zookeeper_user }}"
+        state: present
+        shell: /bin/bash
+        groups: sudo
+        append: yes
+
+    - name: Check if zookeeper /tmp/apache-zookeeper-{{ zookeeper_version }}-bin already exsist in node(s)
+      when: "(ansible_play_hosts_all.index(ansible_host) == 0)"
+      ansible.builtin.stat:
+        path: "/tmp/apache-zookeeper-{{ zookeeper_version }}-bin"
+      register: zookeeper_file
+
+    - name: Extract apache-zookeeper-{{ zookeeper_version }}-bin.tar.gz from source on first node
+      when: "(ansible_play_hosts_all.index(ansible_host) == 0) and (not zookeeper_file.stat.exists)"
+      ansible.builtin.unarchive:
+        src: "https://dlcdn.apache.org/zookeeper/stable/apache-zookeeper-{{ zookeeper_version }}-bin.tar.gz"
+        dest: "/tmp/"
+        remote_src: yes
+        owner: "{{ zookeeper_user }}"
+        group: "{{ zookeeper_user }}"
+        mode: 0755
+
+    - name: Create directories
+      ansible.builtin.file:
+        path: "{{ item }}"
+        state: directory
+        mode: 0755
+      loop:
+        - "{{ zookeeper_home }}"
+        - "{{ zookeeper_etc_path }}"
+        - "{{ zookeeper_data_dir }}"
+        - "{{ zookeeper_log_path }}"
+        - "{{ zookeeper_pid_path }}"
+
+    - name: /tmp/apache-zookeeper-{{ zookeeper_version }}-bin/ to {{ zookeeper_home }} on all nodes
+      ansible.posix.synchronize:
+        src: "/tmp/apache-zookeeper-{{ zookeeper_version }}-bin/"
+        dest: "{{ zookeeper_home }}"
+      delegate_to: "{{ ansible_play_hosts_all.0 }}"
+
+    - name: Copy zookeeper conf to {{ zookeeper_etc_path }}/conf
+      ansible.builtin.copy:
+        src: "{{ zookeeper_home }}/conf/"
+        dest: "{{ zookeeper_etc_path }}"
+        remote_src: yes
+
+    - name: Remove {{ zookeeper_home }}/conf directory
+      ansible.builtin.file:
+        path: "{{ zookeeper_home }}/conf"
+        state: absent
+
+    - name: Creating a new {{ zookeeper_home }}/conf with symlink
+      ansible.builtin.file: 
+        src: "{{ zookeeper_etc_path }}"
+        dest: "{{ zookeeper_home }}/conf"
+        state: link
+
+    - name: Install zookeeper bin files to {{ zookeeper_home }}/bin
+      ansible.builtin.template:
+        src: "bin/{{ item }}"
+        dest: "{{ zookeeper_home }}/bin/"
+        mode: 0755
+      with_items: 
+        - zookeeper-client
+        - zookeeper-server-cleanup
+        - zookeeper-server-initialize
+        - zookeeper-server
+
+    - name: Creating symlink bin from {{ zookeeper_home }}/bin/ to /usr/bin/
+      ansible.builtin.file:
+        src: "{{ zookeeper_home }}/bin/{{ item }}"
+        dest: "/usr/bin/{{ item }}"
+        state: link
+      with_items: 
+        - zookeeper-client
+        - zookeeper-server-cleanup
+        - zookeeper-server-initialize
+        - zookeeper-server

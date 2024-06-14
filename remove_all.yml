@@ -1,0 +1,66 @@
+---
+- name: remove all zookeeper
+  hosts: zookeeper_server
+  vars:
+      zookeeper_home: "/opt/zookeeper_by_ansible"
+      zookeeper_etc_path: "/etc/zookeeper"
+      zookeeper_data_dir: "/data/zookeeper"
+      zookeeper_log_path: "/var/log/zookeeper"
+      zookeeper_pid_path: "/var/run/zookeeper"
+  tasks:
+    - name: Status zookeeper
+      when: inventory_hostname in groups['zookeeper_server'] 
+      ansible.builtin.shell: "zookeeper-server status"
+      register: zk_status
+      failed_when: false
+      changed_when: false
+      
+    - ansible.builtin.debug: var=zk_status.stdout_lines
+      when: inventory_hostname in groups['zookeeper_server']
+
+    - name: Stop zookeeper servers
+      when: inventory_hostname in groups['zookeeper_server']
+      ansible.builtin.shell: "zookeeper-server stop"
+      register: zk_stop_status
+      ignore_errors: yes
+
+    - ansible.builtin.debug: var=zk_stop_status.stdout_lines
+      when: inventory_hostname in groups['zookeeper_server']
+
+    - name: Get zookeeper latest version
+      ansible.builtin.shell: "curl https://dlcdn.apache.org/zookeeper/stable/ | grep 'bin.tar.gz\"' | cut -d '\"' -f6 | cut -d'-' -f3"
+      register: zookeeper_version_raw
+
+    - ansible.builtin.set_fact: zookeeper_version="{{ zookeeper_version_raw.stdout }}"
+
+    - name: remove zookeeper files and directories
+      when: inventory_hostname in groups['zookeeper_server']
+      ansible.builtin.file:
+        path: "{{ item }}"
+        state: absent
+      with_items:
+        - "{{ zookeeper_etc_path }}"
+        - "{{ zookeeper_home }}"
+        - "{{ zookeeper_log_path }}"
+        - "{{ zookeeper_pid_path }}"
+        - /opt/apache-zookeeper-{{ zookeeper_version }}-bin/
+        - /opt/zookeeper
+
+    - name: Remove bin files
+      when: inventory_hostname in groups['zookeeper_server']
+      ansible.builtin.file:
+        path: "/usr/bin/{{ item }}}"
+        state: absent
+      with_items: 
+        - zookeeper-client
+        - zookeeper-server-cleanup
+        - zookeeper-server-initialize
+        - zookeeper-server
+
+    - name: Backup {{ zookeeper_data_dir }}
+      when: inventory_hostname in groups['zookeeper_server']
+      ansible.builtin.command: "mv {{ zookeeper_data_dir }} {{ zookeeper_data_dir }}-{{ ansible_date_time.iso8601 }}"
+      ignore_errors: yes
+
+    - ansible.builtin.debug:
+        msg: "Zookeeper is successfully removed"

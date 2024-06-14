@@ -1,0 +1,42 @@
+---
+- name: Install Zookeeper
+  hosts: zookeeper_server
+  vars:
+    # Playbook steps
+    install_java: true
+    set_hostname_etc_hosts: true
+    install_zookeeper: true
+    config_zookeeper: true
+    start_zookeeper: true
+
+    # Zookeeper configurations
+    hostname_suffix: apache-flink
+    java_version: 11
+    zookeeper_type: cluster # standalone // cluster
+    zookeeper_user: zookeeper
+    zookeeper_port: 2181
+    zookeeper_home: "/opt/zookeeper_by_ansible"
+    zookeeper_etc_path: "/etc/zookeeper"
+    zookeeper_data_dir: "/data/zookeeper"
+    zookeeper_log_path: "/var/log/zookeeper"
+    zookeeper_pid_path: "/var/run/zookeeper"
+
+  pre_tasks:
+    # Zookeeper pre-tasks
+    - name: Set zookeeper nodes id
+      ansible.builtin.set_fact: id="{{ groups['zookeeper_server'].index(ansible_host) | int + 1 }}"
+
+    - name: Set host's name
+      ansible.builtin.set_fact: hosts="zookeeper0{{ id }}.{{ hostname_suffix }}"
+
+    - ansible.builtin.apt: name=curl state=present
+
+    - name: Get zookeeper latest version's number
+      ansible.builtin.shell: "curl https://dlcdn.apache.org/zookeeper/stable/ | grep 'bin.tar.gz\"' | cut -d '\"' -f6 | cut -d'-' -f3"
+      register: zookeeper_version_raw
+
+    - ansible.builtin.set_fact: zookeeper_version="{{ zookeeper_version_raw.stdout_lines.0 }}"
+
+  roles:
+    - java
+    - zookeeper

@@ -1,0 +1,11 @@
+#!/bin/bash
+
+export ZOOPIDFILE=${ZOOPIDFILE:-{{ zookeeper_pid_path }}/zookeeper_server.pid}
+export ZOOKEEPER_HOME=${ZOOKEEPER_HOME:-{{ zookeeper_home }}}
+export ZOOKEEPER_CONF=${ZOOKEEPER_HOME}/conf
+export ZOOCFGDIR=${ZOOCFGDIR:-$ZOOKEEPER_CONF}
+export CLASSPATH=$CLASSPATH:$ZOOKEEPER_CONF:$ZOOKEEPER_HOME/*:$ZOOKEEPER_HOME/lib/*
+export ZOO_LOG_DIR=${ZOO_LOG_DIR:-{{ zookeeper_log_path }}}
+export ZOO_LOG4J_PROP=${ZOO_LOG4J_PROP:-INFO,ROLLINGFILE}
+export JVMFLAGS=${JVMFLAGS:--Dzookeeper.log.threshold=INFO}
+env CLASSPATH=$CLASSPATH ${ZOOKEEPER_HOME}/bin/zkServer.sh "$@"

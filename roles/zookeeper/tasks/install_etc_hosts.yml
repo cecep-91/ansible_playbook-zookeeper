@@ -1,0 +1,8 @@
+---
+    - name: Add entries to /etc/hosts
+      ansible.builtin.lineinfile:
+        path: /etc/hosts
+        line: "{{ hostvars[item]['ansible_default_ipv4']['address'] }} {{ hostvars[item]['hosts'] }}"
+        state: present
+        create: yes
+      with_items: "{{ ansible_play_hosts_all }}"

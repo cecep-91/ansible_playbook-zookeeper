@@ -1,0 +1,12 @@
+---
+- ansible.builtin.include_tasks: install_etc_hosts.yml
+  when: set_hostname_etc_hosts
+
+- ansible.builtin.include_tasks: install_zookeeper.yml
+  when: install_zookeeper 
+
+- ansible.builtin.include_tasks: config_zookeeper.yml
+  when: config_zookeeper 
+
+- ansible.builtin.include_tasks: zookeeper_start_all.yml
+  when: start_zookeeper 

@@ -1,0 +1,19 @@
+---
+- name: Stop all zookeeper
+  hosts: zookeeper_server
+  gather_facts: false
+  tasks:
+    - name: Stop zookeeper servers
+      ansible.builtin.command: "zookeeper-server stop"
+
+    - name: Checking..
+      ansible.builtin.wait_for:
+        timeout: 3
+
+    - name: Status zookeeper
+      ansible.builtin.command: "zookeeper-server status"
+      register: zk_status
+      failed_when: false
+      changed_when: false
+      
+    - ansible.builtin.debug: var=zk_status.stdout_lines

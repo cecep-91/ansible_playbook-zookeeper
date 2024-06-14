@@ -1,0 +1,10 @@
+[all:vars]
+# user and password ssh
+ansible_user=root
+ansible_password=password
+
+[zookeeper_server]
+# zookeeper servers
+10.100.1.144
+10.100.1.145
+10.100.1.146

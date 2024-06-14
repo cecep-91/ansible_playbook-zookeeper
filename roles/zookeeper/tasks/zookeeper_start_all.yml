@@ -1,0 +1,19 @@
+---
+- name: Start zookeeper server(s)
+  ansible.builtin.shell: "zookeeper-server restart"
+
+- name: Checking..
+  ansible.builtin.wait_for:
+    timeout: 3
+
+- name: Status zookeeper
+  ansible.builtin.shell: "zookeeper-server status"
+  register: zk_status
+  failed_when: false
+  changed_when: false
+  
+- ansible.builtin.debug: var=zk_status.stdout_lines
+
+- ansible.builtin.debug:
+    msg:
+      - "Zookeeper {{ zookeeper_type }} service is running on {{ ansible_default_ipv4.address }}:{{ zookeeper_port }}"

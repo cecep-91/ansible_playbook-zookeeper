@@ -1,0 +1,17 @@
+- name: Configure zoo.cfg for standalone
+  when: zookeeper_type == "standalone"
+  ansible.builtin.template:
+    src: single/zoo.cfg
+    dest: "{{ zookeeper_etc_path }}/"
+
+- name: Configure zoo.cfg for cluster
+  when: zookeeper_type == "cluster"
+  ansible.builtin.template:
+    src: cluster/zoo.cfg
+    dest: "{{ zookeeper_etc_path }}/"
+
+- name: Configure myid to {{ zookeeper_data_dir }}/myid for cluster
+  when: zookeeper_type == "cluster"
+  ansible.builtin.template:
+    src: cluster/myid
+    dest: "{{ zookeeper_data_dir }}/"

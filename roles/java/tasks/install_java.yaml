@@ -1,0 +1,24 @@
+    - name: Install openjdk-jdk
+      ansible.builtin.apt:
+        name: "openjdk-{{ java_version }}-jdk"
+        state: present
+
+    - ansible.builtin.shell: "update-alternatives --list java | grep java-{{ java_version }}"
+      register: java_bin
+      changed_when: false
+
+    - ansible.builtin.shell: "update-alternatives --list javac | grep java-{{ java_version }}"
+      register: javac_bin
+      changed_when: false
+
+    - name: Set desired Java version as default
+      community.general.alternatives: name=java path="{{ java_bin.stdout_lines.0 }}" priority=1234
+
+    - name: Set desired Javac version as default
+      community.general.alternatives: name=javac path="{{ javac_bin.stdout_lines.0 }}" priority=1234
+
+    - name: Copy java home script
+      ansible.builtin.template: src=java_home_debian.sh dest=/etc/profile.d/ mode=755
+
+    - name: Set java home script
+      ansible.builtin.shell: . /etc/profile.d/java_home_debian.sh

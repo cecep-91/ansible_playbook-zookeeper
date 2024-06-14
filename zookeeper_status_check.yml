@@ -1,0 +1,12 @@
+---
+- name: Status check all zookeeper
+  hosts: zookeeper_server
+  gather_facts: false
+  tasks:
+    - name: Status zookeeper
+      ansible.builtin.shell: "zookeeper-server status"
+      register: zk_status
+      failed_when: false
+      changed_when: false
+      
+    - ansible.builtin.debug: var=zk_status.stdout_lines
