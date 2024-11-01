@@ -3,23 +3,23 @@
   hosts: zookeeper_server
   vars:
     # Playbook steps
-    install_java: true
-    set_hostname_etc_hosts: true
-    install_zookeeper: true
-    config_zookeeper: true
-    start_zookeeper: true
+    #install_java: true
+    #set_hostname_etc_hosts: true
+    #install_zookeeper: true
+    #config_zookeeper: true
+    #start_zookeeper: true
 
     # Zookeeper configurations
-    hostname_suffix: apache-flink
-    java_version: 11
-    zookeeper_type: cluster # standalone // cluster
-    zookeeper_user: zookeeper
-    zookeeper_port: 2181
-    zookeeper_home: "/opt/zookeeper_by_ansible"
-    zookeeper_etc_path: "/etc/zookeeper"
-    zookeeper_data_dir: "/data/zookeeper"
-    zookeeper_log_path: "/var/log/zookeeper"
-    zookeeper_pid_path: "/var/run/zookeeper"
+    #hostname_suffix: apache-flink
+    #java_version: 11
+    #zookeeper_type: cluster # standalone // cluster
+    #zookeeper_user: zookeeper
+    #zookeeper_port: 2181
+    #zookeeper_home: "/opt/zookeeper_by_ansible"
+    #zookeeper_etc_path: "/etc/zookeeper"
+    #zookeeper_data_dir: "/data/zookeeper"
+    #zookeeper_log_path: "/var/log/zookeeper"
+    #zookeeper_pid_path: "/var/run/zookeeper"
 
   pre_tasks:
     # Zookeeper pre-tasks
