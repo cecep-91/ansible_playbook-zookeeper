@@ -2,24 +2,21 @@
 - name: Install Zookeeper
   hosts: zookeeper_server
   vars:
-    # Playbook steps
-    #install_java: true
-    #set_hostname_etc_hosts: true
-    #install_zookeeper: true
-    #config_zookeeper: true
-    #start_zookeeper: true
-
-    # Zookeeper configurations
-    #hostname_suffix: apache-flink
-    #java_version: 11
-    #zookeeper_type: cluster # standalone // cluster
-    #zookeeper_user: zookeeper
-    #zookeeper_port: 2181
-    #zookeeper_home: "/opt/zookeeper_by_ansible"
-    #zookeeper_etc_path: "/etc/zookeeper"
-    #zookeeper_data_dir: "/data/zookeeper"
-    #zookeeper_log_path: "/var/log/zookeeper"
-    #zookeeper_pid_path: "/var/run/zookeeper"
+    install_java: "{{ lookup('env', 'install_java') }}"
+    set_hostname_etc_hosts: "{{ lookup('env', 'set_hostname_etc_hosts') }}"
+    install_zookeeper: "{{ lookup('env', 'install_zookeeper') }}"
+    config_zookeeper: "{{ lookup('env', 'config_zookeeper') }}"
+    start_zookeeper: "{{ lookup('env', 'start_zookeeper') }}"
+    hostname_suffix: "{{ lookup('env', 'hostname_suffix') }}"
+    java_version: "{{ lookup('env', 'java_version') }}"
+    zookeeper_type: "{{ lookup('env', 'zookeeper_type') }}"
+    zookeeper_user: "{{ lookup('env', 'zookeeper_user') }}"
+    zookeeper_port: "{{ lookup('env', 'zookeeper_port') }}"
+    zookeeper_home: "{{ lookup('env', 'zookeeper_home') }}"
+    zookeeper_etc_path: "{{ lookup('env', 'zookeeper_etc_path') }}"
+    zookeeper_data_dir: "{{ lookup('env', 'zookeeper_data_dir') }}"
+    zookeeper_log_path: "{{ lookup('env', 'zookeeper_log_path') }}"
+    zookeeper_pid_path: "{{ lookup('env', 'zookeeper_pid_path') }}"
 
   pre_tasks:
     # Zookeeper pre-tasks
